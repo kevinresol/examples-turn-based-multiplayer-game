@@ -18,6 +18,7 @@ class TurnTest {
 
 				commands.trigger(RollDice);
 				asserts.assert(match.currentTurn.player.position > 0);
+				asserts.assert(match.currentTurn.player.position < 7);
 
 				asserts.done();
 		}

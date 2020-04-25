@@ -8,9 +8,9 @@ class Player implements Model {
 	@:constant var name:String;
 	@:observable var position:Int = 0;
 
-	function new() {
-		commands.handle(process);
-	}
+	// function new() {
+	// 	commands.handle(process);
+	// }
 
 	@:transition
 	function process(command:Command) {
