@@ -1,0 +1,8 @@
+# @install: lix --silent download "gh://github.com/MVCoconut/coconut.data#889685ab80525283c1ad5cf7ff1001ea2e05ad05" into coconut.data/0.10.0/github/889685ab80525283c1ad5cf7ff1001ea2e05ad05
+-lib tink_anon
+-lib tink_lang
+-lib tink_pure
+-lib tink_state
+-cp ${HAXE_LIBCACHE}/coconut.data/0.10.0/github/889685ab80525283c1ad5cf7ff1001ea2e05ad05/src
+-D coconut.data=0.10.0
+--macro coconut.data.macros.Setup.run()
