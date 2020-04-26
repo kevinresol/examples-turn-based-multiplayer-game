@@ -8,23 +8,12 @@ class Player implements Model {
 	@:constant var name:String;
 	@:observable var position:Int = 0;
 
-	// function new() {
-	// 	commands.handle(process);
-	// }
-
 	@:transition
-	function process(command:Command) {
-		return compute(command);
-	}
+	private function patch(v)
+		return v;
 
-	public function compute(command:Command):Patch<Player> {
-		return switch command {
-			case RollDice:
-				var steps = rollDice();
-				{position: (position + steps) % NUM_TILES}
-			case _:
-				new Error('[Player] cannot handle command ${command.getName()}');
-		}
+	public function walk():Promise<Transition> {
+		return new Transition(patch.bind({position: (position + rollDice()) % NUM_TILES}));
 	}
 
 	function rollDice() {

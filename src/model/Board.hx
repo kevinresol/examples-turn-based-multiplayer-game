@@ -13,14 +13,13 @@ class Board implements Model {
 	}
 
 	@:transition
-	function purchase(tile:Int, byPlayer:Int) {
-		return computePurchase(tile, byPlayer);
-	}
+	private function patch(v)
+		return v;
 
-	public function computePurchase(tile:Int, byPlayer:Int):Patch<Board> {
+	public function purchase(tile:Int, byPlayer:Int):Promise<Transition> {
 		return switch tiles.get(tile) {
 			case -1:
-				{tiles: tiles.with(tile, byPlayer)}
+				new Transition(patch.bind({tiles: tiles.with(tile, byPlayer)}));
 			case id:
 				new Error('[Board] tile $tile is already purchased by player $byPlayer');
 		}

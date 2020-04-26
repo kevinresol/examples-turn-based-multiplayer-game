@@ -1,5 +1,7 @@
 package model;
 
+import haxe.display.Display.SignatureItemKind;
+
 class Turn implements Model {
 	@:constant var commands:Signal<Command>;
 	@:constant var player:Player;
@@ -10,24 +12,31 @@ class Turn implements Model {
 		commands.handle(process);
 	}
 
-	@:transition
 	function process(command:Command) {
-		return compute(command, true);
+		prepare(command).handle(function(o) switch o {
+			case Success(transition):
+				transition.apply();
+			case Failure(e):
+				patch(e); // trigger transition error
+		});
 	}
 
-	public function compute(command:Command, execute = false):Patch<Turn> {
+	@:transition
+	private function patch(v)
+		return v;
+
+	public function prepare(command:Command):Promise<Transition> {
 		return switch [state, command] {
 			case [Begin, RollDice]:
-				(execute ? player.process(command) : player.compute(command).noise()).swap({state: Walked});
+				player.walk().next(transition -> transition.chain(patch.bind({state: Walked})));
 
 			case [Walked, Purchase]:
 				var pos = player.position;
 				var id = player.id;
-				(execute ? match.board.purchase(pos, id) : match.board.computePurchase(pos, id).noise()).swap({state: Purchased});
+				match.board.purchase(pos, id).next(transition -> transition.chain(patch.bind({state: Purchased})));
 
 			case [Walked | Purchased, EndTurn]:
-				match.nextTurn();
-				{state: Ended};
+				match.nextTurn().next(transition -> transition.chain(patch.bind({state: Ended})));
 
 			case _:
 				new Error('[Turn] cannot handle command ${command.getName()} in state ${state.getName()}');

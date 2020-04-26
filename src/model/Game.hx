@@ -1,5 +1,7 @@
 package model;
 
+import js.html.TransitionEvent;
+
 class Game implements Model {
 	@:constant var commands:Signal<Command>;
 	@:observable var state:GameState = @byDefault InLobby(new Lobby({commands: commands}));
@@ -8,19 +10,33 @@ class Game implements Model {
 		commands.handle(process);
 	}
 
-	@:transition
 	function process(command:Command) {
-		return compute(command, true);
+		prepare(command).handle(function(o) switch o {
+			case Success(transition):
+				transition.apply();
+			case Failure(e):
+				// trace(e);
+		});
 	}
 
-	public function compute(command:Command, execute = false):Patch<Game> {
+	@:transition
+	private function patch(v)
+		return v;
+
+	public function prepare(command:Command):Promise<Transition> {
 		return switch [state, command] {
 			case [InLobby(lobby), Join(name)]:
-				(execute ? lobby.process(command) : lobby.compute(command).noise()).swap(@patch {});
+				lobby.players.add(name);
 			case [InLobby(lobby), StartMatch]:
 				switch lobby.players.count() {
 					case 2:
-						{state: InMatch(new Match({commands: commands, players: lobby.players}))}
+						new Transition(patch.bind({
+							state: InMatch(new Match({
+								commands: commands,
+								players: lobby.players
+							}))
+						}));
+
 					case v:
 						new Error('[Game] cannot start match with $v player(s)');
 				}

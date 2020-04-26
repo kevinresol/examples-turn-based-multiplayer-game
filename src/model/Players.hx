@@ -9,25 +9,15 @@ class Players implements coconut.data.Model {
 	}
 
 	@:transition
-	function process(command:Command) {
-		return compute(command);
-	}
+	private function patch(v)
+		return v;
 
-	public function compute(command:Command):Patch<Players> {
-		return switch command {
-			case Join(name):
-				add(name);
-			case _:
-				new Error('[Players] cannot handle command ${command.getName()}');
-		}
-	}
-
-	function add(name:String):Patch<Players> {
+	public function add(name:String):Promise<Transition> {
 		var slots = list.toArray();
 		for (i in 0...slots.length)
 			if (slots[i] == None) {
 				slots[i] = Some(new Player({commands: commands, name: name}));
-				return {list: List.fromArray(slots)}
+				return new Transition(patch.bind({list: List.fromArray(slots)}));
 			}
 		return new Error('Game is full');
 	}

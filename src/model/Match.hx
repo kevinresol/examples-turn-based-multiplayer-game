@@ -10,30 +10,24 @@ class Match implements Model {
 		player: players.first()
 	});
 
-	function new() {
-		commands.handle(process);
-	}
-
 	@:transition
-	function process(command:Command) {
-		return compute(command, true);
-	}
+	private function patch(v)
+		return v;
 
-	public function compute(command:Command, execute = false):Patch<Match> {
+	public function prepare(command:Command):Promise<Transition> {
 		return switch command {
 			case _:
 				new Error('[Match] cannot handle command ${command.getName()}');
 		}
 	}
 
-	@:transition
-	function nextTurn() {
-		return {
+	public function nextTurn():Promise<Transition> {
+		return new Transition(patch.bind({
 			currentTurn: new Turn({
 				commands: commands,
 				match: this,
 				player: players.next(currentTurn.player),
 			}),
-		}
+		}));
 	}
 }
