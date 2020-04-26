@@ -9,10 +9,10 @@ class Turn implements Model {
 	@:observable var state:TurnState = Begin;
 
 	function new() {
-		commands.handle(process);
+		commands.select(v -> v.selectTurn()).handle(process);
 	}
 
-	function process(command:Command) {
+	function process(command:TurnCommand) {
 		prepare(command).handle(function(o) switch o {
 			case Success(transition):
 				transition.apply();
@@ -25,7 +25,7 @@ class Turn implements Model {
 	private function patch(v)
 		return v;
 
-	public function prepare(command:Command):Promise<Transition> {
+	public function prepare(command:TurnCommand):Promise<Transition> {
 		return switch [state, command] {
 			case [Begin, RollDice]:
 				player.walk().next(transition -> transition.chain(patch.bind({state: Walked})));

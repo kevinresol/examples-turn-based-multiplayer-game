@@ -17,10 +17,10 @@ class GameTest {
 			}
 		}
 
-		commands.trigger(Join('Foo'));
+		commands.trigger(Game(Join('Foo')));
 		check(1);
 
-		commands.trigger(Join('Bar'));
+		commands.trigger(Game(Join('Bar')));
 		check(2);
 
 		return asserts.done();
@@ -29,7 +29,7 @@ class GameTest {
 	public function start() {
 		var commands = Signal.trigger();
 		var game = Fixtures.fullyJoined(commands);
-		commands.trigger(StartMatch);
+		commands.trigger(Game(StartMatch));
 
 		switch game.state {
 			case InLobby(lobby):

@@ -16,7 +16,7 @@ class TurnTest {
 			case InMatch(match):
 				asserts.assert(match.currentTurn.player.position == 0);
 
-				commands.trigger(RollDice);
+				commands.trigger(Turn(RollDice));
 				asserts.assert(match.currentTurn.player.position > 0);
 				asserts.assert(match.currentTurn.player.position < 7);
 
@@ -34,8 +34,8 @@ class TurnTest {
 			case InMatch(match):
 				asserts.assert(match.board.purchasedCount() == 0);
 
-				commands.trigger(RollDice);
-				commands.trigger(Purchase);
+				commands.trigger(Turn(RollDice));
+				commands.trigger(Turn(Purchase));
 				asserts.assert(match.board.purchasedCount() > 0);
 
 				asserts.done();
@@ -44,7 +44,7 @@ class TurnTest {
 
 	@:variant([RollDice, Purchase, EndTurn])
 	@:variant([RollDice, EndTurn])
-	public function end(sequence:Array<Command>) {
+	public function end(sequence:Array<TurnCommand>) {
 		var commands = Signal.trigger();
 		var game = Fixtures.started(commands);
 
@@ -54,19 +54,18 @@ class TurnTest {
 			case InMatch(match):
 				var turn = match.currentTurn;
 				for (command in sequence)
-					commands.trigger(command);
+					commands.trigger(Turn(command));
 				asserts.assert(turn.state == Ended);
 				asserts.assert(match.currentTurn != turn, 'Match advanced to new turn');
 				asserts.done();
 		}
 	}
 
-	@:variant([StartMatch], Begin)
 	@:variant([Purchase], Begin)
 	@:variant([RollDice, RollDice], Walked)
 	@:variant([RollDice, Purchase, Purchase], Purchased)
 	@:variant([EndTurn], Begin)
-	public function invalid(sequence:Array<Command>, state:TurnState) {
+	public function invalid(sequence:Array<TurnCommand>, state:TurnState) {
 		var commands = Signal.trigger();
 		var game = Fixtures.started(commands);
 
@@ -81,7 +80,7 @@ class TurnTest {
 				});
 
 				for (command in sequence)
-					commands.trigger(command);
+					commands.trigger(Turn(command));
 
 				asserts;
 		}

@@ -7,15 +7,15 @@ class Game implements Model {
 	@:observable var state:GameState = @byDefault InLobby(new Lobby({commands: commands}));
 
 	function new() {
-		commands.handle(process);
+		commands.select(v -> v.selectGame()).handle(process);
 	}
 
-	function process(command:Command) {
+	function process(command:GameCommand) {
 		prepare(command).handle(function(o) switch o {
 			case Success(transition):
 				transition.apply();
 			case Failure(e):
-				// trace(e);
+				patch(e);
 		});
 	}
 
@@ -23,7 +23,7 @@ class Game implements Model {
 	private function patch(v)
 		return v;
 
-	public function prepare(command:Command):Promise<Transition> {
+	public function prepare(command:GameCommand):Promise<Transition> {
 		return switch [state, command] {
 			case [InLobby(lobby), Join(name)]:
 				lobby.players.add(name);
