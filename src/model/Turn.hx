@@ -27,8 +27,8 @@ class Turn implements Model {
 
 	public function prepare(command:TurnCommand):Promise<Transition> {
 		return switch [state, command] {
-			case [Begin, RollDice]:
-				player.walk().next(transition -> transition.chain(patch.bind({state: Walked})));
+			case [Begin, RollDice(value)]:
+				player.walk(value).next(transition -> transition.chain(patch.bind({state: Walked})));
 
 			case [Walked, Purchase]:
 				var pos = player.position;

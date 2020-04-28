@@ -16,9 +16,8 @@ class TurnTest {
 			case InMatch(match):
 				asserts.assert(match.currentTurn.player.position == 0);
 
-				commands.trigger(Turn(RollDice));
-				asserts.assert(match.currentTurn.player.position > 0);
-				asserts.assert(match.currentTurn.player.position < 7);
+				commands.trigger(Turn(RollDice(5)));
+				asserts.assert(match.currentTurn.player.position == 5);
 
 				asserts.done();
 		}
@@ -34,7 +33,7 @@ class TurnTest {
 			case InMatch(match):
 				asserts.assert(match.board.purchasedCount() == 0);
 
-				commands.trigger(Turn(RollDice));
+				commands.trigger(Turn(RollDice(5)));
 				commands.trigger(Turn(Purchase));
 				asserts.assert(match.board.purchasedCount() > 0);
 
@@ -42,8 +41,8 @@ class TurnTest {
 		}
 	}
 
-	@:variant([RollDice, Purchase, EndTurn])
-	@:variant([RollDice, EndTurn])
+	@:variant([RollDice(5), Purchase, EndTurn])
+	@:variant([RollDice(5), EndTurn])
 	public function end(sequence:Array<TurnCommand>) {
 		var commands = Signal.trigger();
 		var game = Fixtures.started(commands);
@@ -62,8 +61,8 @@ class TurnTest {
 	}
 
 	@:variant([Purchase], Begin)
-	@:variant([RollDice, RollDice], Walked)
-	@:variant([RollDice, Purchase, Purchase], Purchased)
+	@:variant([RollDice(5), RollDice(5)], Walked)
+	@:variant([RollDice(5), Purchase, Purchase], Purchased)
 	@:variant([EndTurn], Begin)
 	public function invalid(sequence:Array<TurnCommand>, state:TurnState) {
 		var commands = Signal.trigger();

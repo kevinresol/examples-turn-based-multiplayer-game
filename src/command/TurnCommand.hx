@@ -1,7 +1,7 @@
 package command;
 
 enum TurnCommand {
-	RollDice;
+	RollDice(value:Int);
 	Purchase;
 	EndTurn;
 }

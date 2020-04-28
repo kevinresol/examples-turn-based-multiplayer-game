@@ -12,11 +12,7 @@ class Player implements Model {
 	private function patch(v)
 		return v;
 
-	public function walk():Promise<Transition> {
-		return new Transition(patch.bind({position: (position + rollDice()) % NUM_TILES}));
-	}
-
-	function rollDice() {
-		return Std.random(6) + 1;
+	public function walk(steps:Int):Promise<Transition> {
+		return new Transition(patch.bind({position: (position + steps) % NUM_TILES}));
 	}
 }
